@@ -11,5 +11,5 @@ import Projeto.DAC.model.Usuario;
 public interface LoginRepository extends JpaRepository<Login, Long>{
 
 	Optional<Login> findByUsuario(String usuario);
-}
+} 
 
