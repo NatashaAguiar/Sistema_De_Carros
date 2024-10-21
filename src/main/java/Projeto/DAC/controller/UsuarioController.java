@@ -38,9 +38,9 @@ public class UsuarioController {
 	@Autowired
 	private QrCodeService qrCodeService;
 	
-	@GetMapping("/qrcode/{id}")
-	public ResponseEntity<byte[]> generateQRCode(@PathVariable Long id) throws Exception {
-	    Usuario usuario = usuarioService.listarPorId(id);
+	@GetMapping("/qrcode/{cpf}")
+	public ResponseEntity<byte[]> generateQRCode(@PathVariable String cpf) throws Exception {
+	    Usuario usuario = usuarioService.listarPorCpf(cpf);
 	    String qrContent = "Nome: " + usuario.getNome() + ", CPF: " + usuario.getCpf() +
 	                       ", Data de Nascimento: " + usuario.getData_nascimento() +
 	                       ", Endereço: " + usuario.getEndereco() +

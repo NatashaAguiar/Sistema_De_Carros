@@ -1,17 +1,18 @@
 package Projeto.DAC.service;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import Projeto.DAC.model.Usuario;
 import Projeto.DAC.repository.UsuarioRepository;
+import Projeto.DAC.service.ValidacaoDeSenha.ValidarSenha;
 
 @Service
 public class UsuarioService {
-	
+		
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
@@ -19,6 +20,8 @@ public class UsuarioService {
 	EmailService emailService;
 	
 	public Usuario salvar(Usuario usuario) {
+		ValidarSenha.validar(usuario.getSenha());
+		
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
 		
 		String assunto = "Cadastro realizado com sucesso!!";
@@ -34,6 +37,10 @@ public class UsuarioService {
 	
 	public Usuario listarPorId(Long id) {
 		return usuarioRepository.findById(id).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado") );
+	}
+	
+	public Usuario listarPorCpf(String cpf) {
+		return usuarioRepository.findByCpf(cpf).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado") );
 	}
 	
 	public void excluir(Long id) {
