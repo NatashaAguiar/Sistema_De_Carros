@@ -1,5 +1,6 @@
 package Projeto.DAC.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,81 +16,97 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import Projeto.DAC.model.Usuario;
+import Projeto.DAC.model.Carro;
+import Projeto.DAC.service.CarroService;
+import Projeto.DAC.service.PDFService;
 import Projeto.DAC.service.QrCodeService;
-import Projeto.DAC.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-@Tag(name = "Usuario", description = "Usuario APIs")
+@Tag(name = "Carro", description = "Carro APIs")
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
-@RequestMapping("/api")
-public class UsuarioController {
+@RequestMapping("/api/carro")
+public class CarroController {
 	
 	@Autowired
-	UsuarioService usuarioService;
+	CarroService carroService;
 	
 	@Autowired
 	private QrCodeService qrCodeService;
 	
+	@Autowired
+	private PDFService pdfService;
+	
+	public CarroController(PDFService pdfService) {
+		this.pdfService = pdfService;
+	}
+	
+	@Operation(summary = "Todos os Carros", tags = { "carros", "get", "filter" })
+	@GetMapping
+	public List<Carro> listar(){
+		return carroService.listarTodos();
+	}
+	
+	@GetMapping("/pdf")
+	public void generatePDF(HttpServletResponse response) throws IOException {
+		response.setContentType("application/pdf");
+		
+		String headerKey = "Content-Disposition";
+		String headerValue = "attachment; filename=Carro_Relatório.pdf";
+	    response.setHeader(headerKey, headerValue);
+		
+		this.pdfService.export(response);
+	}
+	
 	@GetMapping("/qrcode/{id}")
 	public ResponseEntity<byte[]> generateQRCode(@PathVariable Long id) throws Exception {
-	    Usuario usuario = usuarioService.listarPorId(id);
-	    String qrContent = "Nome: " + usuario.getNome() + ", CPF: " + usuario.getCpf() +
-	                       ", Data de Nascimento: " + usuario.getData_nascimento() +
-	                       ", Endereço: " + usuario.getEndereco() +
-	                       ", Telefone: " + usuario.getTelefone() +
-	                       ", Email: " + usuario.getEmail();
+	    Carro carro = carroService.listarPorId(id);
+	    String qrContent = "Carro: " + carro.getModelo() + ", Fabricante: " + carro.getFabricante() + ", Ano: " + carro.getAno() + ", Preço: " + carro.getPreco();
 	    
 	    byte[] qrCodeImage = qrCodeService.generateQRCodeImage(qrContent, 200, 200);
 	    
 	    return ResponseEntity.ok()
-	            .header("Content-Disposition", "attachment; filename=usuario_qrcode.png")
-	            .contentType(new MediaType("image", "png"))
-	            .body(qrCodeImage);
-	}
-	
-	@Operation(summary = "Todos os Usuarios", tags = { "usuarios", "get", "filter" })
-	@GetMapping
-	public List<Usuario> listar(){
-		return usuarioService.listarTodos();
+	    		.header("Content-Disposition", "attachment; filename=carro_qrcode.png")
+	    		.contentType(new MediaType("image", "png"))
+	    		.body(qrCodeImage);
 	}
 	
 	@PostMapping
 	@ApiResponses({
 	      @ApiResponse(responseCode = "201", content = {
-	          @Content(schema = @Schema(implementation = Usuario.class), mediaType = "application/json") }),
+	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-    public Usuario salvar( @RequestBody @Valid Usuario usuario ){
-        return usuarioService.salvar(usuario);
+    public Carro salvar( @RequestBody @Valid Carro carro ){
+        return carroService.salvar(carro);
     }
 	
 	@GetMapping("{id}")
-	public Usuario listarPorId(@PathVariable Long id) {
-		return usuarioService.listarPorId(id);
+	public Carro listarPorId(@PathVariable Long id) {
+		return carroService.listarPorId(id);
 	}
 	
 	@DeleteMapping("{id}")
 	@ApiResponses({ @ApiResponse(responseCode = "204", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
 	public void excluir(@PathVariable Long id) {
-		usuarioService.excluir(id);
+		carroService.excluir(id);
 	}
 	
 	@PutMapping("{id}")
 	@ApiResponses({
 	      @ApiResponse(responseCode = "200", content = {
-	          @Content(schema = @Schema(implementation = Usuario.class), mediaType = "application/json") }),
+	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
-	public void editar(@PathVariable Long id, @RequestBody @Valid Usuario usuarioAtualizado) {
-		usuarioService.editar(id, usuarioAtualizado);
+	public void editar(@PathVariable Long id, @RequestBody @Valid Carro carroAtualizado) {
+		carroService.editar(id, carroAtualizado);
 	}
-	
 }
+
