@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Projeto.DAC.model.Usuario;
@@ -69,6 +70,12 @@ public class UsuarioController {
     public Usuario salvar( @RequestBody @Valid Usuario usuario ){
         return usuarioService.salvar(usuario);
     }
+	
+	@Operation(summary = "Validar Senha do Usuário", tags = { "usuarios", "validarSenha" })
+	@GetMapping("/validarSenha")
+	public ResponseEntity<Boolean> validarSenha(@RequestParam String cpf, @RequestParam String senha) {
+	    return usuarioService.validarSenha(cpf, senha);
+	}
 	
 	@GetMapping("{id}")
 	public Usuario listarPorId(@PathVariable Long id) {

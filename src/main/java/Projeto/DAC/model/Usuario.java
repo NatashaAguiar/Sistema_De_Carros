@@ -50,7 +50,7 @@ public class Usuario {
 	@Column(nullable = true, unique = true, length = 200)
     private String matricula;
 	
-	@Column(nullable = false, unique = true, length = 25)
+	@Column(nullable = false, unique = true, length = 100)
     @NotNull
     @NotEmpty
     private String senha;
