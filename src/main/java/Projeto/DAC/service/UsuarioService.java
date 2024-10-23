@@ -76,6 +76,14 @@ public class UsuarioService /*implements UserDetailsService*/{
 		return ResponseEntity.status(status).body(valid);
 	}
 	
+	public void alterarSenha(Long id, String novaSenha) {
+	    Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+
+	    ValidarSenha.validar(novaSenha);
+	    usuario.setSenha(encoder.encode(novaSenha));
+	    usuarioRepository.save(usuario);
+	}
+	
 	public List<Usuario> listarTodos(){
         return usuarioRepository.findAll();
     }

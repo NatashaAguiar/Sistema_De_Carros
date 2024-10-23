@@ -104,4 +104,13 @@ public class UsuarioController {
 		usuarioService.editar(id, usuarioAtualizado);
 	}
 	
+	@Operation(summary = "Alterar senha do usuário")
+	@PutMapping("/alterarSenha/{id}")
+	@ApiResponses({
+	      @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = Usuario.class), mediaType = "application/json") }),
+	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
+	public void alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
+	    usuarioService.alterarSenha(id, novaSenha);
+	}
+	
 }
