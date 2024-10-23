@@ -39,6 +39,7 @@ public class UsuarioController {
 	@Autowired
 	private QrCodeService qrCodeService;
 	
+	@Operation(summary = "Gerar QrCode com informações do usuário")
 	@GetMapping("/qrcode/{cpf}")
 	public ResponseEntity<byte[]> generateQRCode(@PathVariable String cpf) throws Exception {
 	    Usuario usuario = usuarioService.listarPorCpf(cpf);
@@ -56,12 +57,13 @@ public class UsuarioController {
 	            .body(qrCodeImage);
 	}
 	
-	@Operation(summary = "Todos os Usuarios", tags = { "usuarios", "get", "filter" })
+	@Operation(summary = "Listar todos os usuários")
 	@GetMapping
 	public List<Usuario> listar(){
 		return usuarioService.listarTodos();
 	}
 	
+	@Operation(summary = "Criar novo usuário")
 	@PostMapping
 	@ApiResponses({
 	      @ApiResponse(responseCode = "201", content = {
@@ -71,17 +73,19 @@ public class UsuarioController {
         return usuarioService.salvar(usuario);
     }
 	
-	@Operation(summary = "Validar Senha do Usuário", tags = { "usuarios", "validarSenha" })
+	@Operation(summary = "Validar Senha do Usuário")
 	@GetMapping("/validarSenha")
 	public ResponseEntity<Boolean> validarSenha(@RequestParam String cpf, @RequestParam String senha) {
 	    return usuarioService.validarSenha(cpf, senha);
 	}
 	
+	@Operation(summary = "Buscar usuário por Id")
 	@GetMapping("{id}")
 	public Usuario listarPorId(@PathVariable Long id) {
 		return usuarioService.listarPorId(id);
 	}
 	
+	@Operation(summary = "Deletar usuário")
 	@DeleteMapping("{id}")
 	@ApiResponses({ @ApiResponse(responseCode = "204", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
@@ -89,6 +93,7 @@ public class UsuarioController {
 		usuarioService.excluir(id);
 	}
 	
+	@Operation(summary = "Atualizar usuário")
 	@PutMapping("{id}")
 	@ApiResponses({
 	      @ApiResponse(responseCode = "200", content = {

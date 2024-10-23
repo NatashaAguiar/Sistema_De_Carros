@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import Projeto.DAC.model.Login;
 import Projeto.DAC.model.Usuario;
 import Projeto.DAC.service.LoginService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @Controller
@@ -21,6 +22,7 @@ public class LoginController {
 	@Autowired
 	private LoginService loginService;
 	
+	@Operation(summary = "Realizar Login")
 	@PostMapping 
 	public ResponseEntity<Usuario> login(@RequestBody LoginRequest request){
 		Usuario usuario = loginService.autenticar(request.getIdentificador(), request.getSenha());

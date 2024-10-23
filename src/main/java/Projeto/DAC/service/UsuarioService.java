@@ -2,7 +2,6 @@ package Projeto.DAC.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +12,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
-
 import Projeto.DAC.model.Usuario;
 import Projeto.DAC.repository.UsuarioRepository;
 import Projeto.DAC.service.ValidacaoDeSenha.ValidarSenha;
 
 @Service
-public class UsuarioService implements UserDetailsService{
+public class UsuarioService /*implements UserDetailsService*/{
 		
 	@Autowired
 	UsuarioRepository usuarioRepository;
@@ -42,27 +40,26 @@ public class UsuarioService implements UserDetailsService{
 		return usuarioSalvo;
 	}
 	
-	@Override
+	/*@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 	    Optional<Usuario> usuarioOpt;
 
-	    if (username.matches("\\d{11}")) { // Verifica se é um CPF (11 dígitos)
+	    if (username.matches("\\d{11}")) { 
 	        usuarioOpt = usuarioRepository.findByCpf(username);
-	    } else { // Caso contrário, assume que é matrícula
+	    } else { 
 	        usuarioOpt = usuarioRepository.findByMatricula(username);
 	    }
 
 	    Usuario usuario = usuarioOpt.orElseThrow(() -> 
 	        new UsernameNotFoundException("Usuário não encontrado: " + username));
 
-	    String role = (usuario.getMatricula() != null) ? "ADMIN" : "USER"; // Define o papel
-
+	    String role = (usuario.getMatricula() != null) ? "ADMIN" : "USER"; 
 	    return org.springframework.security.core.userdetails.User.builder()
 	        .username(username)
-	        .password(usuario.getSenha()) // Senha criptografada
-	        .authorities(role) // Define a autoridade baseada no papel
+	        .password(usuario.getSenha()) 
+	        .authorities(role) 
 	        .build();
-	}
+	}*/
 	
 	public ResponseEntity<Boolean> validarSenha(@RequestParam String cpf, @RequestParam String senha){
 		

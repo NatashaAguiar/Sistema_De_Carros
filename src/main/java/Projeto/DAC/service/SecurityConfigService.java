@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfigService {
 
     private final PasswordEncoder passwordEncoder;
@@ -22,11 +21,12 @@ public class SecurityConfigService {
         this.usuarioService = usuarioService;
     }
 
-    @Bean
+   /* @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated() // Ajuste conforme necessário
+            	.requestMatchers("/v3/api-docs/*", "/swagger-ui/*", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated() 
             )
             .httpBasic(Customizer.withDefaults());
 
@@ -38,8 +38,8 @@ public class SecurityConfigService {
         AuthenticationManagerBuilder authenticationManagerBuilder = 
             http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
-            .userDetailsService(usuarioService) // Aqui chamamos o UsuarioService
+            .userDetailsService(usuarioService) 
             .passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();
-    }
+    }*/
 }
