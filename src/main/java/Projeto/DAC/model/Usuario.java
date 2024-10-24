@@ -3,6 +3,8 @@ package Projeto.DAC.model;
 import java.util.Date;
 import org.hibernate.validator.constraints.br.CPF;
 
+import com.beust.jcommander.internal.Nullable;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -45,10 +47,16 @@ public class Usuario {
     @Email
     private String email;
 	
-	@Column(nullable = false, unique = true, length = 25)
+	@Column(nullable = true, unique = true, length = 200)
+    private String matricula;
+	
+	@Column(nullable = false, unique = true, length = 100)
     @NotNull
     @NotEmpty
     private String senha;
+	
+    @OneToOne(mappedBy = "usuarioEntity", cascade = CascadeType.ALL)
+    private Login login;
 
 	public Long getUsuario_id() {
 		return usuario_id;
@@ -105,6 +113,15 @@ public class Usuario {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	
+	public String getMatricula() {
+		return matricula;
+	}
+
+	public void setMatricula(String matricula) {
+		this.matricula = matricula;
+	}
+	
 	public String getSenha() {
 		return senha;
 	}
@@ -112,5 +129,12 @@ public class Usuario {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
+    }
 	
 }
