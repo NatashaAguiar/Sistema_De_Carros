@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class}) //Não vai validar meu usuario e senha
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class}) 
 public class CarrosApiApplication {
 
 	public static void main(String[] args) {
