@@ -48,12 +48,13 @@ public class CarroController {
 		this.pdfService = pdfService;
 	}
 	
-	@Operation(summary = "Todos os Carros", tags = { "carros", "get", "filter" })
+	@Operation(summary = "Listar Todos os Carros")
 	@GetMapping
 	public List<Carro> listar(){
 		return carroService.listarTodos();
 	}
 	
+	@Operation(summary = "Gerar pdf com informações do de 10 carros")
 	@GetMapping("/pdf")
 	public void generatePDF(HttpServletResponse response) throws IOException {
 		response.setContentType("application/pdf");
@@ -65,6 +66,7 @@ public class CarroController {
 		this.pdfService.export(response);
 	}
 	
+	@Operation(summary = "Gerar QrCode por id do carro")
 	@GetMapping("/qrcode/{id}")
 	public ResponseEntity<byte[]> generateQRCode(@PathVariable Long id) throws Exception {
 	    Carro carro = carroService.listarPorId(id);
@@ -78,35 +80,39 @@ public class CarroController {
 	    		.body(qrCodeImage);
 	}
 	
+	@Operation(summary = "Inserir novo carro no sistema")
 	@PostMapping
 	@ApiResponses({
 	      @ApiResponse(responseCode = "201", content = {
 	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-    public Carro salvar( @RequestBody @Valid Carro carro ){
-        return carroService.salvar(carro);
+    public Carro salvar( @RequestBody @Valid Carro carro, Long Id ){
+        return carroService.salvar(carro, Id);
     }
 	
+	@Operation(summary = "Buscar carro por Id")
 	@GetMapping("{id}")
 	public Carro listarPorId(@PathVariable Long id) {
 		return carroService.listarPorId(id);
 	}
 	
+	@Operation(summary = "Deletar carro por Id")
 	@DeleteMapping("{id}")
 	@ApiResponses({ @ApiResponse(responseCode = "204", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-	public void excluir(@PathVariable Long id) {
-		carroService.excluir(id);
+	public void excluir(@PathVariable Long id, Long usuarioId) {
+		carroService.excluir(id, usuarioId);
 	}
 	
+	@Operation(summary = "Atualizar carro")
 	@PutMapping("{id}")
 	@ApiResponses({
 	      @ApiResponse(responseCode = "200", content = {
 	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
-	public void editar(@PathVariable Long id, @RequestBody @Valid Carro carroAtualizado) {
-		carroService.editar(id, carroAtualizado);
+	public void editar(@PathVariable Long id, @RequestBody @Valid Carro carroAtualizado, Long usuarioId) {
+		carroService.editar(id, carroAtualizado, usuarioId);
 	}
 }
 

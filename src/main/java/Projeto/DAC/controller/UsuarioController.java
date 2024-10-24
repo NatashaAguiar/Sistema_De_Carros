@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Projeto.DAC.model.Usuario;
@@ -38,9 +39,10 @@ public class UsuarioController {
 	@Autowired
 	private QrCodeService qrCodeService;
 	
-	@GetMapping("/qrcode/{id}")
-	public ResponseEntity<byte[]> generateQRCode(@PathVariable Long id) throws Exception {
-	    Usuario usuario = usuarioService.listarPorId(id);
+	@Operation(summary = "Gerar QrCode com informações do usuário")
+	@GetMapping("/qrcode/{cpf}")
+	public ResponseEntity<byte[]> generateQRCode(@PathVariable String cpf) throws Exception {
+	    Usuario usuario = usuarioService.listarPorCpf(cpf);
 	    String qrContent = "Nome: " + usuario.getNome() + ", CPF: " + usuario.getCpf() +
 	                       ", Data de Nascimento: " + usuario.getData_nascimento() +
 	                       ", Endereço: " + usuario.getEndereco() +
@@ -55,12 +57,13 @@ public class UsuarioController {
 	            .body(qrCodeImage);
 	}
 	
-	@Operation(summary = "Todos os Usuarios", tags = { "usuarios", "get", "filter" })
+	@Operation(summary = "Listar todos os usuários")
 	@GetMapping
 	public List<Usuario> listar(){
 		return usuarioService.listarTodos();
 	}
 	
+	@Operation(summary = "Criar novo usuário")
 	@PostMapping
 	@ApiResponses({
 	      @ApiResponse(responseCode = "201", content = {
@@ -70,11 +73,19 @@ public class UsuarioController {
         return usuarioService.salvar(usuario);
     }
 	
+	@Operation(summary = "Validar Senha do Usuário")
+	@GetMapping("/validarSenha")
+	public ResponseEntity<Boolean> validarSenha(@RequestParam String cpf, @RequestParam String senha) {
+	    return usuarioService.validarSenha(cpf, senha);
+	}
+	
+	@Operation(summary = "Buscar usuário por Id")
 	@GetMapping("{id}")
 	public Usuario listarPorId(@PathVariable Long id) {
 		return usuarioService.listarPorId(id);
 	}
 	
+	@Operation(summary = "Deletar usuário")
 	@DeleteMapping("{id}")
 	@ApiResponses({ @ApiResponse(responseCode = "204", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
@@ -82,6 +93,7 @@ public class UsuarioController {
 		usuarioService.excluir(id);
 	}
 	
+	@Operation(summary = "Atualizar usuário")
 	@PutMapping("{id}")
 	@ApiResponses({
 	      @ApiResponse(responseCode = "200", content = {
@@ -90,6 +102,15 @@ public class UsuarioController {
 	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
 	public void editar(@PathVariable Long id, @RequestBody @Valid Usuario usuarioAtualizado) {
 		usuarioService.editar(id, usuarioAtualizado);
+	}
+	
+	@Operation(summary = "Alterar senha do usuário")
+	@PutMapping("/alterarSenha/{id}")
+	@ApiResponses({
+	      @ApiResponse(responseCode = "200", content = { @Content(schema = @Schema(implementation = Usuario.class), mediaType = "application/json") }),
+	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
+	public void alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
+	    usuarioService.alterarSenha(id, novaSenha);
 	}
 	
 }
