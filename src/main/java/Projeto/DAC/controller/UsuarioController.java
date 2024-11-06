@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Tag(name = "Usuario", description = "Usuario APIs")
@@ -111,6 +113,18 @@ public class UsuarioController {
 	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
 	public void alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
 	    usuarioService.alterarSenha(id, novaSenha);
+	}
+	
+	@Operation(summary = "Logout do usuário")
+	@PostMapping("/logout")
+	@ApiResponses({
+	    @ApiResponse(responseCode = "200", description = "Logout realizado com sucesso"),
+	    @ApiResponse(responseCode = "401", description = "Usuário não autenticado")
+	})
+	public ResponseEntity<Void> logout(HttpServletRequest request) {
+	    SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+	    logoutHandler.logout(request, null, null);
+	    return ResponseEntity.ok().build();
 	}
 	
 }

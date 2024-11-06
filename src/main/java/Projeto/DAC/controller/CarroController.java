@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Projeto.DAC.model.Carro;
@@ -86,8 +87,8 @@ public class CarroController {
 	      @ApiResponse(responseCode = "201", content = {
 	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-    public Carro salvar( @RequestBody @Valid Carro carro, Long Id ){
-        return carroService.salvar(carro, Id);
+    public Carro salvar( @RequestBody @Valid Carro carro){
+        return carroService.salvar(carro);
     }
 	
 	@Operation(summary = "Buscar carro por Id")
@@ -100,8 +101,8 @@ public class CarroController {
 	@DeleteMapping("{id}")
 	@ApiResponses({ @ApiResponse(responseCode = "204", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
-	public void excluir(@PathVariable Long id, Long usuarioId) {
-		carroService.excluir(id, usuarioId);
+	public void excluir(@PathVariable Long id) {
+		carroService.excluir(id);
 	}
 	
 	@Operation(summary = "Atualizar carro")
@@ -111,8 +112,8 @@ public class CarroController {
 	          @Content(schema = @Schema(implementation = Carro.class), mediaType = "application/json") }),
 	      @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }),
 	      @ApiResponse(responseCode = "404", content = { @Content(schema = @Schema()) }) })
-	public void editar(@PathVariable Long id, @RequestBody @Valid Carro carroAtualizado, Long usuarioId) {
-		carroService.editar(id, carroAtualizado, usuarioId);
+	public void editar(@PathVariable Long id, @RequestBody @Valid Carro carroAtualizado) {
+		carroService.editar(id, carroAtualizado);
 	}
 }
 

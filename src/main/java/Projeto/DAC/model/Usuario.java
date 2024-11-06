@@ -51,12 +51,7 @@ public class Usuario {
     private String matricula;
 	
 	@Column(nullable = false, unique = true, length = 100)
-    @NotNull
-    @NotEmpty
     private String senha;
-	
-    @OneToOne(mappedBy = "usuarioEntity", cascade = CascadeType.ALL)
-    private Login login;
 
 	public Long getUsuario_id() {
 		return usuario_id;
@@ -129,12 +124,5 @@ public class Usuario {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-    public Login getLogin() {
-        return login;
-    }
-
-    public void setLogin(Login login) {
-        this.login = login;
-    }
 	
 }

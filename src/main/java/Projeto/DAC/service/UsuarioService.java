@@ -17,8 +17,8 @@ import Projeto.DAC.repository.UsuarioRepository;
 import Projeto.DAC.service.ValidacaoDeSenha.ValidarSenha;
 
 @Service
-public class UsuarioService /*implements UserDetailsService*/{
-		
+public class UsuarioService implements UserDetailsService {
+	
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
@@ -27,6 +27,28 @@ public class UsuarioService /*implements UserDetailsService*/{
 	
 	@Autowired
 	PasswordEncoder encoder;
+	
+	 @Override
+	 public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		 Optional<Usuario> usuarioOpt;
+	
+		 if (username.matches("\\d{11}")) { 
+		            usuarioOpt = usuarioRepository.findByCpf(username);
+		 } else { 
+		            usuarioOpt = usuarioRepository.findByMatricula(username);
+		 }
+	
+		 Usuario usuario = usuarioOpt.orElseThrow(() -> 
+		 	new UsernameNotFoundException("Usuário não encontrado: " + username));
+	
+		 String role = (usuario.getMatricula() != null) ? "ROLE_ADMIN" : "ROLE_USER";
+		 
+		 return org.springframework.security.core.userdetails.User.builder()
+			 .username(username)
+		     .password(usuario.getSenha())
+			 .authorities(role)
+			 .build();
+	 }
 	
 	public Usuario salvar(Usuario usuario) {
 		ValidarSenha.validar(usuario.getSenha());
@@ -39,27 +61,6 @@ public class UsuarioService /*implements UserDetailsService*/{
 		emailService.enviarEmail(usuarioSalvo.getEmail(), assunto, mensagem);
 		return usuarioSalvo;
 	}
-	
-	/*@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-	    Optional<Usuario> usuarioOpt;
-
-	    if (username.matches("\\d{11}")) { 
-	        usuarioOpt = usuarioRepository.findByCpf(username);
-	    } else { 
-	        usuarioOpt = usuarioRepository.findByMatricula(username);
-	    }
-
-	    Usuario usuario = usuarioOpt.orElseThrow(() -> 
-	        new UsernameNotFoundException("Usuário não encontrado: " + username));
-
-	    String role = (usuario.getMatricula() != null) ? "ADMIN" : "USER"; 
-	    return org.springframework.security.core.userdetails.User.builder()
-	        .username(username)
-	        .password(usuario.getSenha()) 
-	        .authorities(role) 
-	        .build();
-	}*/
 	
 	public ResponseEntity<Boolean> validarSenha(@RequestParam String cpf, @RequestParam String senha){
 		
@@ -112,7 +113,6 @@ public class UsuarioService /*implements UserDetailsService*/{
         	usuario.setEndereco(usuarioAtualizado.getEndereco());
         	usuario.setTelefone(usuarioAtualizado.getTelefone());
         	usuario.setEmail(usuarioAtualizado.getEmail());
-        	usuario.setSenha(usuarioAtualizado.getSenha());
             return usuarioRepository.save(usuario);
         }).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado") );
 	}

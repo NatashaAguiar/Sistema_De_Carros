@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import Projeto.DAC.model.Carro;
-import Projeto.DAC.model.Usuario;
 import Projeto.DAC.repository.CarroRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Service
 public class CarroService {
@@ -21,16 +22,8 @@ public class CarroService {
 	@Autowired
 	public UsuarioService usuarioService;
 	
-	public Carro salvar(Carro carro, Long Id) {
-		
-		Usuario usuario = usuarioService.listarPorId(Id);
-		
-		String loginType = (usuario != null && usuario.getMatricula() != null) ? "ADMIN" : "USER";
-		if(loginType.equals("USER")) 
-		{
-			throw new IllegalStateException("Usuários comum não têm permissão para inserir carros.");
-		}
-		
+	public Carro salvar(Carro carro) {
+		validarPermissaoAdmin();
 		return carroRepository.save(carro);
 	}
 	
@@ -46,15 +39,8 @@ public class CarroService {
 		return carroRepository.findById(id).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carro não encontrado") );
 	}
 	
-	public void excluir(Long id, Long usuarioId) {
-		
-		Usuario usuario = usuarioService.listarPorId(usuarioId);
-		
-		String loginType = (usuario != null && usuario.getMatricula() != null) ? "ADMIN" : "USER";
-		if(loginType.equals("USER")) 
-		{
-			throw new IllegalStateException("Usuários comum não têm permissão para inserir carros.");
-		}
+	public void excluir(Long id) {
+		validarPermissaoAdmin();
 		
 		carroRepository.findById(id).map(carro -> {
 			carroRepository.delete(carro);
@@ -62,15 +48,9 @@ public class CarroService {
 	        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carro não encontrado"));
 	}
 	
-	public void editar(Long id, Carro carroAtualizado, Long usuarioId) {
+	public void editar(Long id, Carro carroAtualizado) {
+		validarPermissaoAdmin();
 		
-		Usuario usuario = usuarioService.listarPorId(usuarioId);
-		
-		String loginType = (usuario != null && usuario.getMatricula() != null) ? "ADMIN" : "USER";
-		if(loginType.equals("USER")) 
-		{
-			throw new IllegalStateException("Usuários comum não têm permissão para inserir carros.");
-		}
 		carroRepository.findById(id)
         .map( carro -> {
         	carro.setModelo(carroAtualizado.getModelo());
@@ -80,5 +60,12 @@ public class CarroService {
             return carroRepository.save(carro);
         }).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Carro não encontrado") );
 	}
+	
+	private void validarPermissaoAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            throw new IllegalStateException("Permissão negada. Apenas administradores podem realizar esta operação.");
+        }
+    }
 
 }

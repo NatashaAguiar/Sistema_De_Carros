@@ -4,13 +4,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfigService {
 
     private final PasswordEncoder passwordEncoder;
@@ -20,26 +21,32 @@ public class SecurityConfigService {
         this.passwordEncoder = passwordEncoder;
         this.usuarioService = usuarioService;
     }
-
-   /* @Bean
+    
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/v3/api-docs/*", "/swagger-ui/*", "/swagger-ui.html").permitAll()
-                .anyRequest().authenticated() 
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").hasAnyRole("ADMIN", "USER")
+                .requestMatchers("/api/carro").hasAnyRole("ADMIN", "USER")
+                .requestMatchers("/api/carro/listar").hasAnyRole("ADMIN", "USER")
+                .requestMatchers("/api/carro/qrcode/**", "/api/carro/pdf/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
-
+            .formLogin(form -> form.permitAll())
+            .httpBasic(Customizer.withDefaults())
+            .logout(logout -> logout
+                    .logoutUrl("/logout-custom") 
+                    .logoutSuccessUrl("/swagger-ui.html") 
+                    .invalidateHttpSession(true) 
+                    .clearAuthentication(true) 
+                    .deleteCookies("JSESSIONID")
+            );
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = 
-            http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-            .userDetailsService(usuarioService) 
-            .passwordEncoder(passwordEncoder);
-        return authenticationManagerBuilder.build();
-    }*/
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
